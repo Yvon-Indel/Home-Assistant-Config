@@ -1,0 +1,121 @@
+project_id: homeassistant-9feb6
+service_account: !include SERVICE_ACCOUNT.JSON
+report_state: true
+entity_config:
+#chambre parentale
+  light.lampe_de_chevet_delphine:
+    name: Chevet de Delphine
+    expose: true
+    aliases:
+      - La lampe de chevet de delphine
+    room: Chambre parentale
+    
+  light.lampe_de_chevet_yvon:
+    name: Chevet d'Yvon
+    expose: true
+    aliases:
+      - La lampe de chevet d'yvon
+    room: Chambre parentale
+    
+  light.lumiere_parentale_12:
+    name: La lumière
+    expose: true
+    room: Chambre parentale 
+    
+ #Dressing  
+  light.hallogene:
+    name: L'halogène
+    expose: true
+    room: Dressing 
+   
+ #Véranda   
+  cover.volet_central_101:
+    name: Le volet central
+    expose: true
+    room: Véranda
+  
+  cover.volets_lateraux_103:
+    name: Les volets latéraux
+    expose: true
+    room: Véranda
+    
+  light.plafond:
+    name: La lumière
+    expose: true
+    room: Véranda
+ 
+  light.lampe_de_sel:
+    name: la lampe de sel
+    expose: true
+    room: Véranda
+    
+ #Cuisine   
+  light.lumiere_du_sejour:
+    name: La lumière
+    expose: true
+    room: Cuisine
+
+ #Séjour   
+  light.lumiere_cuisine_5:
+    name: La lumière
+    expose: true
+    room: Séjour
+    
+ #Salle de bain    
+  light.lampe_sdb_rdc:
+    name: La lumière
+    expose: true
+    room: Salle de bain
+ 
+ #Wc
+  light.wc_bas:
+    name: La lumière
+    expose: true
+    room: Wc 
+ 
+ #Couloir
+  light.couloir:
+    name: La lumière
+    expose: true
+    room: Couloir
+    
+  light.gateway_light_04cf8c97dcee:
+    name: La passerelle
+    expose: true
+    room: Couloir 
+
+ #Baie
+  switch.rfxcom_remote_2_bt2:
+    name: L'imprimante
+    expose: true
+    room: Baie 
+
+ #Exterieur
+  light.exterieur:
+    name: La terrasse
+    expose: true
+    room: Extérieur
+    
+  group.guirelandes_exterieures:
+    name: Les guirlandes
+    expose: true
+    room: Extérieur
+  
+  light.piscine:   
+    name: Les boules
+    expose: true
+    room: Extérieur
+      
+  #Piscine
+  light.eclairage_de_la_piscine:
+    name: Le spot
+    expose: true
+    room: Piscine
+    
+  #Cabanon de jardin
+  light.eclairage_des_oiseaux:
+    name: Les oiseaux
+    expose: true
+    room: Cabanon   
+   
+expose_by_default: false   

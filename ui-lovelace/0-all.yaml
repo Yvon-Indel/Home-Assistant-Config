@@ -1,0 +1,10 @@
+title: All
+badges:
+  - entity: person.yvon
+  - entity: person.solene
+  - entity: person.delphine
+  - entity: person.lou_ann
+cards:
+  - entity: weather.monnaie
+    type: weather-forecast
+path: default_view

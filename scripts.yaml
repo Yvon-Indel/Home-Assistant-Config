@@ -1,0 +1,160 @@
+'1585671895470':
+  alias: notif_rvoice
+  sequence:
+  - data_template:
+      message: '{{ states("input_text.announcement_text") }}'
+      entity_id: group.tous_les_player
+      volume: '{{ states("input_number.slider_annonce_volume") }}'
+    service: mqtt_rvoice.play
+'1585843523999':
+  alias: Annonce heure
+  sequence:
+  - data_template:
+      message: Il est exactement {{ now().strftime("%Hh%M") }}.
+      entity_id: group.tous_les_player
+      volume: '{{ states("input_number.slider_annonce_volume") }}'
+    service: mqtt_rvoice.play
+messenger_yvon:
+  alias: messenger to yvon
+  description: Envoi un message de notification messenger à Yvon
+  fields:
+    message:
+      description: Message à envoyer
+      example: Ceci est un test de message.
+  sequence:
+  - service: notify.messenger
+    data_template:
+      message: '{{ message }}'
+      target: 2168235846556808
+messenger_delphine:
+  alias: messenger to delphine
+  description: Envoi un message de notification messenger à Delphine
+  fields:
+    message:
+      description: Message à envoyer
+      example: Ceci est un test de message.
+  sequence:
+  - service: notify.messenger
+    data_template:
+      message: '{{ message }}'
+      target: 2166909423387217
+messenger_lou_ann:
+  alias: messenger to lou-ann
+  description: Envoi un message de notification messenger à Lou-Ann
+  fields:
+    message:
+      description: Message à envoyer
+      example: Ceci est un test de message.
+  sequence:
+  - service: notify.messenger
+    data_template:
+      message: '{{ message }}'
+      target: 2042628979182235
+messenger_solene:
+  alias: messenger to solene
+  description: Envoi un message de notification messenger à Solène
+  fields:
+    message:
+      description: Message à envoyer
+      example: Ceci est un test de message.
+  sequence:
+  - service: notify.messenger
+    data_template:
+      message: '{{ message }}'
+      target: 2021684694607565
+messenger_parents:
+  alias: messenger to parents
+  description: Envoi un message de notification messenger au parents
+  fields:
+    message:
+      description: Message à envoyer
+      example: Ceci est un test de message.
+  sequence:
+  - service: notify.messenger
+    data_template:
+      message: '{{ message }}'
+      target:
+      - 2168235846556808
+      - 2166909423387217
+messenger_enfants:
+  alias: messenger to enfants
+  description: Envoi un message de notification messenger aux enfants
+  fields:
+    message:
+      description: Message à envoyer
+      example: Ceci est un test de message.
+  sequence:
+  - service: notify.messenger
+    data_template:
+      message: '{{ message }}'
+      target:
+      - 2042628979182235
+      - 2021684694607565
+messenger_tous:
+  alias: messenger to tous
+  description: Envoi un message de notification messenger à tout le monde
+  fields:
+    message:
+      description: Message à envoyer
+      example: Ceci est un test de message.
+  sequence:
+  - service: notify.messenger
+    data_template:
+      message: '{{ message }}'
+      target:
+      - 2168235846556808
+      - 2166909423387217
+      - 2042628979182235
+      - 2021684694607565
+
+appel_les_enfants:
+  alias: appel les enfants
+  description: Envoi un message pour appeler en enfants en bas
+  fields:
+    message:
+      description: Message à envoyer
+      example: Ceci est un test de message.  
+  sequence:
+  - service: switch.turn_on
+    entity_id: switch.sonnette_interieure
+  - delay: 00:00:01
+  - service: switch.turn_on
+    entity_id: switch.sonnette_interieure
+  - delay: 00:00:01
+  - service: switch.turn_on
+    entity_id: switch.sonnette_interieure
+  - delay: 00:00:01
+  - service: script.turn_on
+    entity_id: script.messenger_enfants
+    data:
+      variables:
+        message: "Merci de descendre, les parents t'appelent!"
+
+
+log:
+  alias: messenger to tous
+  description: Envoi un message de notification messenger à tout le monde
+  fields:
+    message:
+      description: Message à envoyer
+      example: Ceci est un test de message.
+  sequence:
+  - service: notify.messenger
+    data_template:
+      message: '{{ message }}'
+      target:
+      - 2168235846556808
+      - 2166909423387217
+      - 2042628979182235
+      - 2021684694607565
+
+      - type: section
+        label: Discord
+      - type: call-service
+        icon: 'mdi:voice'
+        name: ' '
+        action_name: Envoyer Message
+        service: notify.discord
+        service_data:
+          message: "A message from Home Assistant"
+          target: ["550688646970212362"]        

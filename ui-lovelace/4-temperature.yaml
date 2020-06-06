@@ -1,0 +1,117 @@
+title: Temperatures
+cards:
+  - type: history-graph
+    title: 'Températures exterieures'
+    entities:
+      - entity: sensor.monnaie_temperature
+        name: Exterieur météo
+      - entity: sensor.rfxcom_exterieur_barbecue_t
+        name: Exterieur   
+      - entity: sensor.temperature_du_local_piscine
+        name: Local piscine
+      - entity: sensor.temperature_reel_piscine            
+        name: Eau piscine
+        
+  - type: horizontal-stack
+    cards:
+      - type: sensor
+        entity: sensor.monnaie_temperature
+        name: Exterieur météo
+      - type: sensor
+        entity: sensor.rfxcom_exterieur_barbecue_t
+        name: Exterieur           
+      - type: sensor
+        entity: sensor.temperature_du_local_piscine
+        name: Local piscine          
+      - type: sensor    
+        entity: sensor.temperature_reel_piscine
+        name: Eau piscine
+  - type: history-graph
+    title: 'Températures interieures'
+    entities:
+      - entity: sensor.temperature_veranda
+        name: Véranda
+      - entity: sensor.temperature_cuisine
+        name: Cuisine
+      - entity: sensor.temperature_chambre_parentale            
+        name: Ch. Parentale
+      #- entity: sensor.temperature_buanderi_361            
+      #  name: Buanderie        
+  - type: vertical-stack
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: sensor
+            entity: sensor.temperature_veranda
+            name: Véranda
+          - type: sensor
+            entity: sensor.temperature_cuisine
+            name: Cuisine          
+          - type: sensor    
+            entity: sensor.temperature_chambre_parentale
+            name: Ch. Parentale
+      - type: horizontal-stack
+        cards:
+          - type: sensor    
+            entity: sensor.rfxcom_buanderie_t
+            name: Buanderie
+          - type: sensor    
+            entity: sensor.rfxcom_salle_de_bain_bas_t
+            name: Salle de bain du bas            
+          - type: sensor    
+            entity: sensor.rfxcom_salle_de_bain_haut_t
+            name: Salle de bain du haut            
+      - type: horizontal-stack
+        cards:
+         - type: sensor    
+           entity:  sensor.rfxcom_cave_a_vin_t
+           name: Cave à vin 
+      - type: horizontal-stack
+        cards:
+          - type: sensor    
+            entity: sensor.rfxcom_chambre_amis_t
+            name: Chambre d'amis
+          - type: sensor    
+            entity: sensor.temperature_158d00045b26e9   
+            name: Congélateur            
+         
+  - type: history-graph
+    title: 'Humidité interieures'
+    entities:
+      - entity: sensor.humidity_veranda
+        name: Véranda
+      - entity: sensor.humidity_cuisine
+        name: Cuisine
+      - entity: sensor.humidity_chambre_parentale            
+        name: Ch. Parentale
+        
+  - type: vertical-stack
+    cards:
+     - type: horizontal-stack
+       cards:
+        - type: sensor
+          entity: sensor.humidity_veranda
+          name: Véranda
+        - type: sensor
+          entity: sensor.humidity_cuisine
+          name: Cuisine          
+        - type: sensor    
+          entity: sensor.humidity_chambre_parentale
+          name: Ch. Parentale 
+     - type: horizontal-stack
+       cards:
+        - type: sensor    
+          entity: sensor.rfxcom_buanderie_h
+          name: Buanderie
+        - type: sensor    
+          entity: sensor.rfxcom_salle_de_bain_bas_h
+          name: Salle de bain du bas            
+        - type: sensor    
+          entity: sensor.rfxcom_salle_de_bain_haut_h
+          name: Salle de bain du bas
+     - type: horizontal-stack
+       cards:
+        - type: sensor    
+          entity: sensor.rfxcom_cave_a_vin_h
+          name: Cave à vin           
+path: temperature_int_view   

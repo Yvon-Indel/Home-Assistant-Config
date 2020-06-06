@@ -1,0 +1,66 @@
+# TEMPO
+input_number:
+  slider_tempo_couloir_bas:
+    name: durée (s)
+    initial: 60
+    min: 30
+    max: 3600
+    step: 10
+
+  slider_tempo_imprimante:
+    name: durée (min)
+    initial: 60
+    min: 10
+    max: 120
+    step: 5
+
+  slider_tempo_couloir:
+    name: durée (s)
+    initial: 30
+    min: 30
+    max: 3600
+    step: 10
+ 
+automation:
+# Tempo Imprimante
+  - alias: timer imprimante
+    trigger:
+      - platform: state
+        entity_id: switch.rfxcom_remote_2_bt2
+        from : 'off'
+        to: 'on'
+      - platform: state
+        entity_id: sensor.harestart
+    action:
+      - delay:
+          minutes: "{{ states('input_number.slider_tempo_imprimante')|int }}"
+      - service: switch.turn_off
+        entity_id: switch.rfxcom_remote_2_bt2
+  # Tempo couloir du haut
+  - alias: timer couloir haut
+    trigger:
+      - platform: state
+        entity_id: switch.maitre_couloir_6
+        from: 'off'
+        to: 'on'
+      - platform: state
+        entity_id: sensor.harestart
+    action:
+      - delay:
+          seconds: '{{ states(''input_number.slider_tempo_couloir'')|int }}'
+      - service: switch.turn_off
+        entity_id: switch.maitre_couloir_6
+  # Tempo couloir du bas
+  - alias: timer couloir bas
+    trigger:
+      - platform: state
+        entity_id: light.couloir
+        from: 'off'        
+        to: 'on'
+      - platform: state
+        entity_id: sensor.harestart
+    action:
+      - delay:
+          seconds: '{{ states(''input_number.slider_tempo_couloir_bas'')|int }}'
+      - service: light.turn_off
+        entity_id: light.couloir

@@ -1,0 +1,11 @@
+tous_les_player:
+    name: Tous les player
+    entities:
+      - media_player.cuisine
+      - media_player.veranda
+
+guirelandes_exterieures:
+    name: Les guirelandes extèrieures
+    entities:
+      - switch.guirlande_de_noel
+      - switch.06207783dc4f22b283c5_1

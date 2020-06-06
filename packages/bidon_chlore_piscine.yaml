@@ -1,0 +1,81 @@
+input_datetime:
+  date_bidon_chlore_change:
+    name: Date de changement du bidon de chlore
+    has_date: true
+    has_time: false
+
+  date_bidon_chlore_alert:
+    name: Date d'alerte bas niveau du bidon de chlore
+    has_date: true
+    has_time: true
+sensor:
+  - platform: template
+    sensors:
+      bidon_de_chlore:
+        entity_id:
+          - sensor.niveau_de_chlore
+        value_template: '{{ states.sensor.niveau_de_chlore.state }}'
+        friendly_name: "Bidon de chlore"
+        attribute_templates:
+          bidon_etat: >-
+           {% if states('sensor.niveau_de_chlore')|int == 1 %}
+           Normal
+           {% else %}
+           Bas
+           {% endif %}
+          bidon_last_change: '{{(as_timestamp(states.input_datetime.date_bidon_chlore_change.state) | timestamp_custom("%d-%m-%Y", true)) }}'
+          bidon_last_alert: >- 
+           {% if states('sensor.niveau_de_chlore')|int == 0 %}
+           {{(as_timestamp(states.input_datetime.date_bidon_chlore_alert.state) | timestamp_custom("%d-%m-%Y", true)) }}
+           {% else %}
+           Pas d'alerte
+           {% endif %}
+
+
+automation:
+  #Maj date de l'alerte niveau bas quand le capteur passe à 0
+  - alias: maj_alerte_chlore_bas
+    description: maj de la date de détection du niveau bas du bidon de chlore
+    trigger:
+    - entity_id: sensor.niveau_de_chlore
+      platform: state
+      from: '1'
+      to: '0'
+    action:
+    - service: input_datetime.set_datetime
+      data_template:
+        entity_id: input_datetime.date_bidon_chlore_alert
+        time: '{{ (as_timestamp(now()) | timestamp_custom("%H:%M:%S", true)) }}'
+        date: '{{ (as_timestamp(now()) | timestamp_custom("%Y-%m-%d", false)) }}' 
+    - service: automation.turn_on
+      entity_id: automation.notification_de_niveau_critique 
+      
+  #Maj date de changement du bidon - manuel via l'UI
+  - alias: maj_bidon_change
+    description: maj de la date de détection du niveau bas du bidon de chlore
+    trigger: []
+    action:
+    - service: input_datetime.set_datetime
+      data_template:
+        entity_id: input_datetime.date_bidon_chlore_change
+        #time: '{{ (as_timestamp(now()) | timestamp_custom("%H:%M:%S", true)) }}'
+        date: '{{ (as_timestamp(now()) | timestamp_custom("%Y-%m-%d", f)) }}'
+    - service: automation.turn_off
+      entity_id: automation.notification_de_niveau_critique 
+
+  #Alerte niveau critique à partir de 3 jours après le niveau bas
+  - alias: notification de niveau critique
+    trigger:
+    - platform: time
+      at: '00:00:00'
+    condition:
+      - condition: template
+        value_template: "{{ (as_timestamp(now()) - as_timestamp(states.input_datetime.date_bidon_chlore_alert.state)) > 259200 and states('sensor.niveau_de_chlore')|int == 0 }}"
+    action:
+    - service: script.messenger_yvon
+      data:
+        message: Niveau critique du bidon de chlore..
+    - service: persistent_notification.create
+      data:
+        message: Niveau critique du bidon de chlore.
+        title: Piscine        

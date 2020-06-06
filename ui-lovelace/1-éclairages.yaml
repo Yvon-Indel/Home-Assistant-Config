@@ -1,0 +1,69 @@
+title: Eclairage
+badges: []
+cards:
+  - entities:
+      - type: section
+        label: Véranda
+      - entity: light.plafond
+      - entity: light.bureau_et_mur
+      - entity: switch.lampe_de_sel_303
+      - type: section
+        label: cuisine
+      - entity: light.lumiere_cuisine_5
+        name: Plafond
+      - type: section
+        label: Séjour
+      - entity: light.lumiere_du_sejour
+        name: Plafond
+      - type: section
+        label: Couloir
+      - entity: light.couloir
+      - entity: input_number.slider_tempo_couloir_bas      
+      - entity: light.gateway_light_04cf8c97dcee
+      - type: section
+        label: Salle de bain
+      - entity: light.lampe_sdb_rdc
+        name: Spots
+      - type: section
+        label: WC
+      - entity: light.wc_bas  
+        name: Plafond
+      - type: section
+        label: Chambre parentale
+      - entity: light.lumiere_parentale_12
+        name: Plafond
+      - entity: switch.lampe_de_chevet_yvon
+      - entity: switch.lampe_de_chevet_delphine
+      - type: section
+        label: Dressing      
+      - entity: switch.rfxcom_inter_dressing         
+    show_header_toggle: true
+    title: REZ DE CHAUSSEE
+    type: entities
+    
+  - entities:
+    - type: section
+      label: Couloir
+    - entity: switch.maitre_couloir_6
+    - entity: input_number.slider_tempo_couloir          
+    show_header_toggle: false
+    title: ETAGE
+    type: entities
+
+  - entities:
+    - type: section
+      label: Devant
+    - entity: light.exterieur
+    - entity: light.piscine
+    - entity: switch.eclairage_de_la_piscine
+    - entity: switch.guirlande_de_noel
+    - entity: switch.06207783dc4f22b283c5_1    
+    - type: section
+      label: Derrière
+    - entity: switch.rfxcom_prise_oiseaux
+      name: Eclairage des oiseaux
+    show_header_toggle: false
+    title: JARDIN
+    type: entities   
+path: eclairage_view
+

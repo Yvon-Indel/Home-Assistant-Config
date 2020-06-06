@@ -1,0 +1,64 @@
+title: Prises
+badges: [] 
+cards:
+  - entities:
+    - type: section
+      label: Baie informatique
+    - entity: switch.rfxcom_remote_2_bt2
+    - entity: input_number.slider_tempo_imprimante
+    - type: section
+      label: Cuisine
+    - entity: switch.lave_vaisselle_832
+      type: custom:multiple-entity-row
+      name: Lave vaisselle
+      toggle: true
+      icon: mdi:dishwasher
+      entities:
+        - entity: sensor.lave_vaisselle_power
+          name: Power
+        - entity: sensor.lave_vaisselle_status
+          name: Statut          
+    show_header_toggle: false      
+    title: REZ DE CHAUSSEE
+    type: entities
+  - entities:
+    - type: section
+      label: Buanderie
+    - entity: switch.machine_a_laver_319
+      type: custom:multiple-entity-row
+      name: Machines à laver n°1
+      toggle: true
+      icon: mdi:washing-machine
+      entities:
+        - entity: sensor.machine_a_laver1_power
+          name: Power
+        - entity: sensor.machine_a_laver1_status
+          name: Statut
+    - entity: switch.lave_linge_2_831
+      type: custom:multiple-entity-row
+      name: Machines à laver n°2
+      toggle: true
+      icon: mdi:washing-machine
+      entities:
+        - entity: sensor.machine_a_laver2_power
+          name: Power
+        - entity: sensor.machine_a_laver2_status
+          name: Statut                          
+    - type: section
+      label: Autre
+    - entity: switch.sonoff_disjoncteur_cumulus
+      icon: mdi:water-boiler
+    - type: section
+    - entity: switch.imprimante_3d
+      type: custom:multiple-entity-row
+      name: Imprimante 3D
+      show_state: false
+      icon: mdi:printer-3d
+      entities:
+        - entity: sensor.imprimante_3d
+          name: Power
+    show_header_toggle: false
+    title: SOUS-SOL
+    type: entities        
+path: Prises_view
+    

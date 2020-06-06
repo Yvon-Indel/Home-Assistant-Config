@@ -1,0 +1,7 @@
+- name: messenger
+  platform: facebook
+  page_access_token: !secret messenger_key  
+
+- name: discord
+  platform: discord
+  token: !secret discord_token

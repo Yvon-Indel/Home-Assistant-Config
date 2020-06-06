@@ -1,0 +1,218 @@
+input_select:
+  machine_a_laver1_status:
+    name: Status de la machine à laver n°1
+    icon: mdi:washing-machine
+    options:
+      - En veille
+      - Lavage en cours
+      - Eteinte
+
+  machine_a_laver2_status:
+    name: Status de la machine à laver n°2
+    icon: mdi:washing-machine
+    options:
+      - En veille
+      - Lavage en cours
+      - Eteinte
+      
+  lave_vaisselle_status:
+    name: Status du lave vaisselle
+    icon: mdi:dishwasher
+    options:
+      - En veille
+      - Lavage en cours
+      - Eteinte    
+      
+automation:
+  #Lave vaisselle
+
+  - alias: maj statut lave_vaisselle si la consommation augmente
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.lave_vaisselle_power
+      above: 10
+      for:
+        minutes: 1
+    condition:
+    - condition: template
+      value_template: "{{ states('input_select.lave_vaisselle_status') == 'En veille' }}"
+    action:
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.lave_vaisselle_status
+        option: Lavage en cours
+    - service: script.messenger_parents
+      data:
+        message: Le lave-vaisselle commence son cycle de lavage.
+    - service: persistent_notification.create
+      data:
+        message: Le lave vaisselle commence son cycle de lavage.
+        title: Lave-vaisselle
+
+
+  - alias: maj statut lave_vaisselle si la consommation baisse
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.lave_vaisselle_power
+      below: 2
+      for:
+        minutes: 30
+    condition:
+    - condition: state
+      entity_id: input_select.lave_vaisselle_status
+      state: Lavage en cours
+    action:
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.lave_vaisselle_status
+        option: En veille
+    - service: mqtt_rvoice.play
+      data_template:
+        entity_id: group.tous_les_player
+        message: "Le lave-vaisselle a terminé. Vous pouvez le vider. Je répète, le lave-vaisselle a terminé le lavage. Vous pouvez le vider. Merci."
+        volume: "{{ states('input_number.slider_annonce_volume') }}"
+    - service: script.messenger_tous
+      data:
+        message: Le lave-vaisselle a terminé.
+    - service: persistent_notification.create
+      data:
+        message: Le lave-vaisselle a terminé le lavage.
+        title: Lave-vaisselle
+        
+  #Machines à laver           
+  - alias: maj statut machine1 si la consommation augmente
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.machine_a_laver1_power
+      above: 10
+      for:
+        minutes: 1
+    condition:
+    - condition: template
+      value_template: '{{ states("input_select.machine_a_laver1_status") != "Lavage en cours" }}'
+    action:
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.machine_a_laver1_status
+        option: Lavage en cours
+    - service: script.messenger_parents
+      data:
+        message: La Machine à laver n°1 commence son cycle de lavage.
+    - service: persistent_notification.create
+      data:
+        message: Une lessive a été lançée.
+        title: Machine à laver n°1
+
+  - alias: maj statut machine2 si la consommation augmente
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.machine_a_laver2_power
+      above: 10
+      for:
+        minutes: 1
+    condition:
+    - condition: template
+      value_template: '{{ states("input_select.machine_a_laver2_status") != "Lavage en cours" }}'
+    action:
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.machine_a_laver2_status
+        option: Lavage en cours
+    - service: script.messenger_parents
+      data:
+        message: La Machine à laver n°2 commence son cycle de lavage.
+    - service: persistent_notification.create
+      data:
+        message: Une lessive a été lançée.
+        title: Machine à laver n°2
+
+  - alias: maj statut machine1 si la consommation baisse
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.machine_a_laver1_power
+      below: 2
+      for:
+        minutes: 2
+    condition:
+    - condition: state
+      entity_id: input_select.machine_a_laver1_status
+      state: Lavage en cours
+    action:
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.machine_a_laver1_status
+        option: En veille
+    - service: mqtt_rvoice.play
+      data_template:
+        entity_id: group.tous_les_player
+        message: "La machine à laver numéro 1 a terminé. Vous pouvez l'étendre. Je répète, La machine à laver numéro 1 a terminé. Vous pouvez l'étendre. Merci."
+        volume: "{{ states('input_number.slider_annonce_volume') }}"
+    - service: script.messenger_tous
+      data:
+        message: La machine à laver n°1 a terminé.
+    - service: persistent_notification.create
+      data:
+        message: La lessive est terminée.
+        title: Machine à laver n°1
+
+  - alias: maj statut machine2 si la consommation baisse
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.machine_a_laver2_power
+      below: 2
+      for:
+        minutes: 2
+    condition:
+    - condition: state
+      entity_id: input_select.machine_a_laver2_status
+      state: Lavage en cours
+    action:
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.machine_a_laver2_status
+        option: En veille
+    - service: mqtt_rvoice.play
+      data_template:
+        entity_id: group.tous_les_player
+        message: "La machine à laver numéro 2 a terminé. Vous pouvez l'étendre. Je répète, La machine à laver numéro 2 a terminé. Vous pouvez l'étendre. Merci."
+        volume: "{{ states('input_number.slider_annonce_volume') }}"
+    - service: script.messenger_tous
+      data:
+        message: La machine à laver n°2 a terminé.
+    - service: persistent_notification.create
+      data:
+        message: La lessive est terminée.
+        title: Machine à laver n°2
+
+  - alias: arret machine1 si en veille plus de 5 minutes
+    trigger:
+      platform: state
+      entity_id: input_select.machine_a_laver1_status
+      to: En veille
+      for:
+        minutes: 5
+    condition:
+    action:
+      - service: switch.turn_off
+        entity_id: switch.machine_a_laver_319
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.machine_a_laver2_status
+          option: Eteinte          
+
+  - alias: arret machine2 si en veille plus de 5 minutes
+    trigger:
+      platform: state
+      entity_id: input_select.machine_a_laver2_status
+      to: En veille
+      for:
+        minutes: 5
+    condition:
+    action:
+      - service: switch.turn_off
+        entity_id: switch.lave_linge_2_831
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.machine_a_laver2_status
+          option: Eteinte          
+          

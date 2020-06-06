@@ -1,0 +1,524 @@
+input_number:
+  temperature_piscine_reel:
+    name: Temperature piscine reelle
+    min: -5
+    max: 50
+    mode: box
+    
+input_select:
+  creneau_filtration_piscine:
+    name: Créneau de filtration de la piscine
+    icon: mdi:pool
+    options:
+      - '03h00-05h00'
+      - '03h00-07h00'
+      - '01h30-07h30' 
+      - '01h00-08h00 / 13h30-14h30'
+      - '01h00-08h00 / 13h30-16h30 / 20h00-22h00'
+      - '01h00-08h00 / 13h00-18h00 / 20h00-23h00'
+
+  etat_prevu_filtration_piscine:
+    name: Etat prévu de filtration de la piscine
+    icon: mdi:pool
+    options:
+      - 'En marche'
+      - 'Arrêté'
+script:
+  filtration_piscine:
+    alias: creneau_de_filtration_piscine
+    description: Créneau de filtration piscine 
+    fields:
+      duree:
+        description: durée du créneau en minute
+        example: 180.  
+    sequence:
+    - service: switch.turn_on
+      entity_id: switch.pompe_de_la_piscine
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.etat_prevu_filtration_piscine
+        option: 'En marche'
+    - service: script.messenger_yvon
+      data_template:
+        message: "La filtration piscine démarre (Créneau:{{ states.sensor.temperature_reel_piscine.attributes.creneau }}) pour une durée de {{ duree|int }} minutes."
+    - service: persistent_notification.create
+      data_template:
+        message: "La filtration piscine démarre à {{ now().strftime('%H:%M') }} (Créneau:{{ states.sensor.temperature_reel_piscine.attributes.creneau }}) pour une durée de {{ duree|int }} minutes."
+        title: Filtration piscine
+
+    - delay: 
+        minutes: '{{ duree | int }}'
+        
+    - service: switch.turn_off
+      entity_id: switch.pompe_de_la_piscine
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.etat_prevu_filtration_piscine
+        option: 'Arrêté'
+    - service: script.messenger_yvon
+      data_template:
+        message: "La filtration piscine s'arrête (Créneau:{{ states.sensor.temperature_reel_piscine.attributes.creneau }})."
+    - service: persistent_notification.create
+      data_template:
+        message: "La filtration piscine s arrête à {{ now().strftime('%H:%M') }} (Créneau:{{ states.sensor.temperature_reel_piscine.attributes.creneau }})."
+        title: Filtration piscine
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.temperature_piscine_reel
+        value: "{{ states('sensor.temperature_de_l_eau')|float }}"
+    - service: script.messenger_yvon
+      data_template:
+        message: "La température de l'eau est de {{ states.input_number.temperature_piscine_reel.state }}°c."        
+        
+sensor:
+  - platform: template
+    sensors:
+      creneau_de_filtration_actif:
+        entity_id:
+          - sensor.temperature_reel_piscine
+        value_template: "{{ state_attr('sensor.temperature_reel_piscine', 'creneau') }}"
+        friendly_name: 'Creneau de filtration actif'
+
+  - platform: template
+    sensors:
+      etat_de_filtration_prevu:
+        entity_id:
+          - input_select.etat_prevu_filtration_piscine
+        value_template: '{{ states.input_select.etat_prevu_filtration_piscine.state }}'
+        friendly_name: 'Etat prévu de la filtration'
+        
+  - platform: template
+    sensors:
+      temperature_reel_piscine:
+        entity_id:
+          - input_number.temperature_piscine_reel
+        value_template: '{{ states.input_number.temperature_piscine_reel.state }}'
+        friendly_name: "Température de l'eau"
+        attribute_templates:
+          qualite: >-
+           {% if states('input_number.temperature_piscine_reel')|float > 32 %}
+           Trop chaude
+           {% endif %}
+           {% if (states('input_number.temperature_piscine_reel')|float > 29) and (states('input_number.temperature_piscine_reel')|float <= 32) %}
+           Parfaite
+           {% endif %}
+           {% if (states('input_number.temperature_piscine_reel')|float > 27) and (states('input_number.temperature_piscine_reel')|float <= 29) %}
+           Très bonne
+           {% endif %}
+           {% if (states('input_number.temperature_piscine_reel')|float > 25) and (states('input_number.temperature_piscine_reel')|float <= 27) %}
+           Bonne
+           {% endif %}
+           {% if (states('input_number.temperature_piscine_reel')|float > 20) and (states('input_number.temperature_piscine_reel')|float <= 25) %}
+           Fraiche
+           {% endif %}
+           {% if (states('input_number.temperature_piscine_reel')|float > 10) and (states('input_number.temperature_piscine_reel')|float <= 20) %}
+           Froide
+           {% endif %}          
+           {% if (states('input_number.temperature_piscine_reel')|float > 3) and (states('input_number.temperature_piscine_reel')|float <= 10) %}
+           Glaciale - hivernage
+           {% endif %}
+           {% if (states('input_number.temperature_piscine_reel')|float <= 3) %}
+           Danger - Risque de gel !
+           {% endif %}          
+          creneau: >-
+           {% if states('input_number.temperature_piscine_reel')|float > 30 %}
+           01h00-08h00 / 13h00-18h00 / 20h00-23h00
+           {% endif %}
+           {% if (states('input_number.temperature_piscine_reel')|float > 24) and (states('input_number.temperature_piscine_reel')|float <= 30) %}
+           01h00-08h00 / 13h30-16h30 / 20h00-22h00
+           {% endif %}
+           {% if (states('input_number.temperature_piscine_reel')|float > 16) and (states('input_number.temperature_piscine_reel')|float <= 24) %}
+           01h00-08h00 / 13h30-14h30
+           {% endif %}
+           {% if (states('input_number.temperature_piscine_reel')|float > 12) and (states('input_number.temperature_piscine_reel')|float <= 16) %}
+           01h30-07h30
+           {% endif %}
+           {% if (states('input_number.temperature_piscine_reel')|float > 10) and (states('input_number.temperature_piscine_reel')|float <= 12) %}
+           03h00-07h00
+           {% endif %}
+           {% if (states('input_number.temperature_piscine_reel')|float <= 10) %}
+           03h00-05h00
+           {% endif %}          
+
+automation:
+  #Maj temperature de l'eau en cours de filtration mais seulement filtration tournante depuis plus de 10 minutes
+  - alias: maj_temperature_piscine
+    description: maj de la température si la pompe est en marche uniquement
+    trigger:
+    - entity_id: sensor.temperature_de_l_eau
+      platform: state
+    condition: 
+    - condition: template
+      value_template: >
+       {%- if ((as_timestamp(now()) - as_timestamp(states.switch.pompe_de_la_piscine.last_changed)) > 600) and (states("switch.pompe_de_la_piscine") == 'on') -%}
+       true
+       {%- else -%}
+       false
+       {%- endif -%}
+    action:
+      service: input_number.set_value
+      data_template:
+        entity_id: input_number.temperature_piscine_reel
+        value: "{{ states('sensor.temperature_de_l_eau')|float }}"
+
+#Maj temperature de l'eau après 5 min de filtration pour avoir la température initiale
+  - alias: maj_temperature_piscine
+    description: maj de la température si la pompe est en marche uniquement
+    trigger:
+    - entity_id: switch.pompe_de_la_piscine
+      platform: state
+      to: 'on'
+    action:
+      - delay:
+          minutes: 10
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.temperature_piscine_reel
+          value: "{{ states('sensor.temperature_de_l_eau')|float }}"
+
+   #************************ Gestion des creneaux de filtration piscine ******************
+   # - '03h00-05h00' <=10°C - Hivernage
+   # - '03h00-07h00' <=12°C
+   # - '01h30-07h30' <=16°C
+   # - '01h00-08h00 / 13h30-14h30' <=24°C 
+   # - '01h00-08h00 / 13h30-16h30 / 20h00-22h00' <=30°C
+   # - '01h00-08h00 / 13h00-18h00 / 20h00-23h00' >30°C 
+   #**************************************************************************************
+   
+   # de 03h00-05h00 
+  - alias: filtration_creneau_1
+    description: Créneau de filtration 03h00-05h00 
+    trigger:
+    - platform: time
+      at: '03:00:00'
+    - platform: homeassistant
+      event: start
+    condition:
+      - condition: template
+        value_template: '{{ states.sensor.temperature_reel_piscine.attributes.creneau == "03h00-05h00" }}'
+      - condition: template
+        value_template: >
+         {% set n = now() %}
+         {% if n.hour >= 3 and n.hour < 5 %}
+          true
+         {% else %}
+          false
+         {% endif %}
+    action:
+    - service: script.filtration_piscine
+      data_template:
+        duree: >
+         {% set relative_time =  (5|float|multiply(60) + 0|float) - (now().hour|float|multiply(60) + now().minute) %}
+         {%- if relative_time < 0 -%}
+         {{24*60+relative_time}}
+         {%- else -%}
+         {{relative_time}}
+         {%- endif %}
+
+   # de 03h00-07h00 
+  - alias: filtration_creneau_1
+    description: Créneau de filtration 03h00-07h00 
+    trigger:
+    - platform: time
+      at: '03:00:00'
+    - platform: homeassistant
+      event: start
+    condition:
+      - condition: template
+        value_template: '{{ states.sensor.temperature_reel_piscine.attributes.creneau == "03h00-07h00" }}'
+      - condition: template
+        value_template: >
+         {% set n = now() %}
+         {% if n.hour >= 3 and n.hour < 5 %}
+          true
+         {% else %}
+          false
+         {% endif %}
+    action:
+    - service: script.filtration_piscine
+      data_template:
+        duree: >
+         {% set relative_time =  (5|float|multiply(60) + 0|float) - (now().hour|float|multiply(60) + now().minute) %}
+         {%- if relative_time < 0 -%}
+         {{24*60+relative_time}}
+         {%- else -%}
+         {{relative_time}}
+         {%- endif %}
+
+   # de 01h30-07h30 
+  - alias: filtration_creneau_2
+    description: Créneau de filtration 01h30-07h30 
+    trigger:
+    - platform: time
+      at: '01:30:00'
+    - platform: homeassistant
+      event: start    
+    condition:
+      - condition: template
+        value_template: '{{ states.sensor.temperature_reel_piscine.attributes.creneau == "01h30-07h30" }}'
+      - condition: template
+        value_template: >
+         {% set n = now() %}
+         {% if (n.hour == 1 and n.minute >= 30) or (n.hour > 1 and n.hour < 7)or (n.hour == 7 and n.minute <= 30)  %}
+          true
+         {% else %}
+          false
+         {% endif %}      
+    action:
+    - service: script.filtration_piscine
+      data_template:
+        duree: >
+         {% set relative_time =  (7|float|multiply(60) + 30|float) - (now().hour|float|multiply(60) + now().minute) %}
+         {%- if relative_time < 0 -%}
+         {{24*60+relative_time}}
+         {%- else -%}
+         {{relative_time}}
+         {%- endif %}
+
+   # de 01h00-08h00 / 13h30-14h30 
+  - alias: filtration_creneau_3
+    description: Créneau de filtration 01h00-08h00 / 13h30-14h30 -1 
+    trigger:
+    - platform: time
+      at: '01:00:00'
+    - platform: homeassistant
+      event: start    
+    condition:
+      - condition: template
+        value_template: '{{ states.sensor.temperature_reel_piscine.attributes.creneau == "01h00-08h00 / 13h30-14h30" }}'
+      - condition: template
+        value_template: >
+         {% set n = now() %}
+         {% if n.hour >= 1 and n.hour < 8 %}
+          true
+         {% else %}
+          false
+         {% endif %}
+    action:
+    - service: script.filtration_piscine
+      data_template:
+        duree: >
+         {% set relative_time =  (8|float|multiply(60) + 0|float) - (now().hour|float|multiply(60) + now().minute) %}
+         {%- if relative_time < 0 -%}
+         {{24*60+relative_time}}
+         {%- else -%}
+         {{relative_time}}
+         {%- endif %}
+         
+  - alias: filtration_creneau_4
+    description: Créneau de filtration 01h00-08h00 / 13h30-14h30 -2 
+    trigger:
+    - platform: time
+      at: '13:30:00'
+    - platform: homeassistant
+      event: start
+    condition:
+      - condition: template
+        value_template: '{{ states.sensor.temperature_reel_piscine.attributes.creneau == "01h00-08h00 / 13h30-14h30" }}'
+      - condition: template
+        value_template: >
+         {% set n = now() %}
+         {% if (n.hour == 13 and n.minute >= 30) or (n.hour == 14 and n.minute <= 30)  %}
+          true
+         {% else %}
+          false
+         {% endif %}      
+    action:
+    - service: script.filtration_piscine
+      data_template:
+        duree: >
+         {% set relative_time =  (14|float|multiply(60) + 30|float) - (now().hour|float|multiply(60) + now().minute) %}
+         {%- if relative_time < 0 -%}
+         {{24*60+relative_time}}
+         {%- else -%}
+         {{relative_time}}
+         {%- endif %}
+    
+   # de 01h00-08h00 / 13h30-16h30 / 20h00-22h 
+  - alias: filtration_creneau_5
+    description: Créneau de filtration 01h00-08h00 / 13h30-16h30 / 20h00-22h -1 
+    trigger:
+    - platform: time
+      at: '01:00:00'
+    - platform: homeassistant
+      event: start    
+    condition:
+      - condition: template
+        value_template: '{{ states.sensor.temperature_reel_piscine.attributes.creneau == "01h00-08h00 / 13h30-16h30 / 20h00-22h00" }}'
+      - condition: template
+        value_template: >
+         {% set n = now() %}
+         {% if n.hour >= 1 and n.hour < 8 %}
+          true
+         {% else %}
+          false
+         {% endif %}
+    action:
+    - service: script.filtration_piscine
+      data_template:
+        duree: >
+         {% set relative_time =  (8|float|multiply(60) + 0|float) - (now().hour|float|multiply(60) + now().minute) %}
+         {%- if relative_time < 0 -%}
+         {{24*60+relative_time}}
+         {%- else -%}
+         {{relative_time}}
+         {%- endif %}
+  - alias: filtration_creneau_6
+    description: Créneau de filtration 01h00-08h00 / 13h30-16h30 / 20h00-22h -2 
+    trigger:
+    - platform: time
+      at: '13:30:00'
+    - platform: homeassistant
+      event: start    
+    condition:
+      - condition: template
+        value_template: '{{ states.sensor.temperature_reel_piscine.attributes.creneau == "01h00-08h00 / 13h30-16h30 / 20h00-22h00" }}'
+      - condition: template
+        value_template: >
+         {% set n = now() %}
+         {% if (n.hour == 13 and n.minute >= 30) or (n.hour > 13 and n.hour < 15)or (n.hour == 16 and n.minute <= 30)  %}
+          true
+         {% else %}
+          false
+         {% endif %}      
+    action:
+    - service: script.filtration_piscine
+      data_template:
+        duree: >
+         {% set relative_time =  (16|float|multiply(60) + 30|float) - (now().hour|float|multiply(60) + now().minute) %}
+         {%- if relative_time < 0 -%}
+         {{24*60+relative_time}}
+         {%- else -%}
+         {{relative_time}}
+         {%- endif %}
+  - alias: filtration_creneau_7
+    description: Créneau de filtration 01h00-07h00 / 13h30-16h30 / 20h00-22h -3 
+    trigger:
+    - platform: time
+      at: '20:00:00'
+    - platform: homeassistant
+      event: start        
+    condition:
+      - condition: template
+        value_template: '{{ states.sensor.temperature_reel_piscine.attributes.creneau == "01h00-08h00 / 13h30-16h30 / 20h00-22h00" }}'
+      - condition: template
+        value_template: >
+         {% set n = now() %}
+         {% if n.hour >= 20 and n.hour < 22 %}
+          true
+         {% else %}
+          false
+         {% endif %}
+    action:
+    - service: script.filtration_piscine
+      data_template:
+        duree: >
+         {% set relative_time =  (22|float|multiply(60) + 0|float) - (now().hour|float|multiply(60) + now().minute) %}
+         {%- if relative_time < 0 -%}
+         {{24*60+relative_time}}
+         {%- else -%}
+         {{relative_time}}
+         {%- endif %}
+        
+   # 01h00-08h00 / 13h00-18h00 / 20h00-23h00 
+  - alias: filtration_creneau_8
+    description: Créneau de filtration 01h00-08h00 / 13h00-18h00 / 20h00-23h00 -1 
+    trigger:
+    - platform: time
+      at: '01:00:00'
+    - platform: homeassistant
+      event: start    
+    condition:
+      - condition: template
+        value_template: '{{ states.sensor.temperature_reel_piscine.attributes.creneau == "01h00-08h00 / 13h00-18h00 / 20h00-23h00" }}'
+      - condition: template
+        value_template: >
+         {% set n = now() %}
+         {% if n.hour >= 1 and n.hour < 8 %}
+          true
+         {% else %}
+          false
+         {% endif %}
+    action:
+    - service: script.filtration_piscine
+      data_template:
+        duree: >
+         {% set relative_time =  (8|float|multiply(60) + 0|float) - (now().hour|float|multiply(60) + now().minute) %}
+         {%- if relative_time < 0 -%}
+         {{24*60+relative_time}}
+         {%- else -%}
+         {{relative_time}}
+         {%- endif %}
+   
+  - alias: filtration_creneau_9
+    description: Créneau de filtration 01h00-08h00 / 13h00-18h00 / 20h00-23h00 -2 
+    trigger:
+    - platform: time
+      at: '13:00:00'
+    - platform: homeassistant
+      event: start    
+    condition:
+      - condition: template
+        value_template: '{{ states.sensor.temperature_reel_piscine.attributes.creneau == "01h00-08h00 / 13h00-18h00 / 20h00-23h00" }}'
+      - condition: template
+        value_template: >
+         {% set n = now() %}
+         {% if n.hour >= 13 and n.hour < 18 %}
+          true
+         {% else %}
+          false
+         {% endif %}
+    action:
+    - service: script.filtration_piscine
+      data_template:
+        duree: >
+         {% set relative_time =  (18|float|multiply(60) + 0|float) - (now().hour|float|multiply(60) + now().minute) %}
+         {%- if relative_time < 0 -%}
+         {{24*60+relative_time}}
+         {%- else -%}
+         {{relative_time}}
+         {%- endif %}
+  - alias: filtration_creneau_10
+    description: Créneau de filtration 01h00-08h00 / 13h00-18h00 / 20h00-23h00 -3 
+    trigger:
+    - platform: time
+      at: '20:00:00'
+    - platform: homeassistant
+      event: start    
+    condition:
+      - condition: template
+        value_template: '{{ states.sensor.temperature_reel_piscine.attributes.creneau == "01h00-08h00 / 13h00-18h00 / 20h00-23h00" }}'
+      - condition: template
+        value_template: >
+         {% set n = now() %}
+         {% if n.hour >= 20 and n.hour < 23 %}
+          true
+         {% else %}
+          false
+         {% endif %}
+    action:
+    - service: script.filtration_piscine
+      data_template:
+        duree: >
+         {% set relative_time =  (23|float|multiply(60) + 0|float) - (now().hour|float|multiply(60) + now().minute) %}
+         {%- if relative_time < 0 -%}
+         {{24*60+relative_time}}
+         {%- else -%}
+         {{relative_time}}
+         {%- endif %}       
+   # si la filtration n'est pas à l'état attendu, on force l'arret (en cas de reboot du wemos, la filtration se met en route)      
+  - alias: verifie etat filtration 
+    description: verifie l'état de la filtration et force le mode 
+    trigger:
+    - entity_id: switch.pompe_de_la_piscine
+      platform: state
+      to: 'on'
+    condition:
+      - condition: template
+        value_template: '{{ states.input_select.etat_prevu_filtration_piscine.state == "Arrêté" }}'
+    action:
+      service: switch.turn_off
+      data_template:
+        entity_id: switch.pompe_de_la_piscine
+        
+

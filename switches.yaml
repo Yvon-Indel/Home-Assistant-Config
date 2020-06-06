@@ -1,0 +1,61 @@
+ #Piscine
+ - platform: mqtt
+   name: "Eclairage de la piscine"
+   state_topic: "/Local Piscine/Piscine_Eclairage/Piscine_Eclairage"
+   state_on: 1
+   state_off: 0
+   command_topic: "/Local Piscine/cmd"
+   payload_on: "GPIO,4,0"
+   payload_off: "GPIO,4,1"
+   optimistic: false
+   retain: true
+   
+ - platform: mqtt
+   name: "pompe de la piscine"
+   state_topic: "/Local Piscine/Piscine_Pompe/Piscine_Pompe"
+   state_on: 1
+   state_off: 0
+   command_topic: "/Local Piscine/cmd"
+   payload_on: "GPIO,12,1"
+   payload_off: "GPIO,12,0"
+   optimistic: false
+   retain: true
+   
+ #Chambre parentale
+ - platform: mqtt
+   name: "Lampe de Chevet Yvon"
+   icon: mdi:lamp
+   state_topic: "/Chevet_Yvon/relais/state"
+   state_on: 1
+   state_off: 0
+   command_topic: "/Chevet_Yvon/cmd"
+   payload_on: "event,TurnOn"
+   payload_off: "event,TurnOff"
+   optimistic: false
+   retain: true
+ 
+ - platform: mqtt
+   name: "Lampe de Chevet Delphine"
+   icon: mdi:lamp
+   state_topic: "/Chevet_Delphine/relais/state"
+   state_on: 1
+   state_off: 0
+   command_topic: "/Chevet_Delphine/cmd"
+   payload_on: "event,TurnOn"
+   payload_off: "event,TurnOff"
+   optimistic: false
+   retain: true
+   
+   
+ #sonnette intèrieure
+ - platform: mqtt
+   name: "sonnette interieure"
+   icon: mdi:lamp
+   state_topic: "shellies/shelly1-111AA9/relay/0"
+   state_on: 1
+   state_off: 0
+   command_topic: "shellies/shelly1-111AA9/relay/0/command"
+   payload_on: "on"
+   payload_off: "off"
+   optimistic: false
+   retain: false

@@ -1,0 +1,30 @@
+automation:
+  - alias: 'Notification jour'
+    description: Chan gement du volume mode jour
+    trigger:
+      platform: time
+      at: '07:00:00'
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.slider_annonce_volume
+          value: "0.5"
+      - service: persistent_notification.create
+        data:
+           message: Passage en monde jour.
+           title: Notification sonore
+  
+  - alias: 'Notification nuit'
+    description: Chan gement du volume mode nuit
+    trigger:
+      platform: time
+      at: '23:00:00'
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.slider_annonce_volume
+          value: "0.1"
+      - service: persistent_notification.create
+        data:
+          message: Passage en monde nuit.
+          title: Notification sonore        

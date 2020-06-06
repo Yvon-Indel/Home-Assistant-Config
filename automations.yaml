@@ -1,0 +1,234 @@
+
+# Chambre parentale
+- alias: Inter chevet Yvon - bt droit
+  trigger:
+    platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.wall_switch_right_158d0002ea0c0d
+      click_type: single
+  action:
+  - service: switch.toggle
+    data:
+      entity_id: switch.lampe_de_chevet_delphine
+
+- alias: Inter chevet Yvon - bt gauche
+  trigger:
+    platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.wall_switch_left_158d0002ea0c0d
+      click_type: single
+  action:
+  - service: switch.toggle
+    data:
+      entity_id: switch.lampe_de_chevet_yvon
+
+- alias: Inter chevet Delphine - bt droit
+  trigger:
+    platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.wall_switch_right_158d0002fb4e14
+      click_type: single
+  action:
+  - service: switch.toggle
+    data:
+      entity_id: switch.lampe_de_chevet_yvon
+
+- alias: Inter chevet Delphine - bt gauche
+  trigger:
+    platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.wall_switch_left_158d0002fb4e14
+      click_type: single
+  action:
+  - service: switch.toggle
+    data:
+      entity_id: switch.lampe_de_chevet_delphine
+
+- alias: Inter chevet Delphine - bt gauche
+  trigger:
+    platform: state
+    entity_id:
+    - switch.lampe_de_chevet_yvon
+    - switch.lampe_de_chevet_delphine
+    to: 'on'
+  action:
+  - service: light.turn_off
+    data:
+      entity_id: light.lumiere_parentale_12
+
+- alias: Inter chevet Delphine et Yvon - bt double
+  trigger:
+  - platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.wall_switch_both_158d0002fb4e14
+      click_type: both
+  - platform: event
+    event_type: xiaomi_aqara.click
+    event_data:
+      entity_id: binary_sensor.wall_switch_both_158d0002ea0c0d
+      click_type: both
+  action:
+  - service: switch.toggle
+    data:
+      entity_id:
+      - switch.lampe_de_chevet_yvon
+      - switch.lampe_de_chevet_delphine
+  - service: light.turn_off
+    data:
+      entity_id: light.lumiere_parentale_12
+      
+# Alarme
+- alias: Alarme On
+  description: ''
+  trigger:
+  - entity_id: alarm_control_panel.alarme_maison
+    platform: state
+    to: armed_away
+  condition: []
+  action:
+  - data: {}
+    entity_id: switch.xiaomi_gateway_alarm
+    service: switch.turn_on
+- alias: Alarme Off
+  description: ''
+  trigger:
+  - entity_id: alarm_control_panel.alarme_maison
+    platform: state
+    to: disarmed
+  condition: []
+  action:
+  - data: {}
+    entity_id: switch.xiaomi_gateway_alarm
+    service: switch.turn_off
+          
+#Bouton lumière du couloir
+- alias: lumiere couloir Toggle
+  trigger:
+  - platform: state
+    entity_id: sensor.inter_couloir_court
+    from: '0'
+    to: '1'
+  action:
+    service: light.toggle
+    entity_id: light.couloir
+    
+ #Fin d'impression 3D 
+- alias: debut impression 3d
+  trigger:
+    platform: numeric_state
+    entity_id: sensor.imprimante_3d
+    above: 45
+    for:
+      minutes: 1    
+  action:
+  - service: script.messenger_yvon
+    data:
+      message: L'impression 3D commence.
+  - service: persistent_notification.create
+    data:
+      message: L'impression commence.
+      title: Imprimante 3D
+  - service: automation.turn_on
+    entity_id: automation.fin_impression_3d 
+#Fin d'impression 3D 
+- alias: fin impression 3d
+  trigger:
+    platform: numeric_state
+    entity_id: sensor.imprimante_3d
+    below: 30
+    for:
+      minutes: 1    
+  action:
+  - service: mqtt_rvoice.play
+    data_template:
+      entity_id: group.tous_les_player
+      message: "L'impression 3 dé est terminée. Je répète, l'impression 3 dé est terminée. Merci."
+      volume: "{{ states('input_number.slider_annonce_volume') }}"
+  - service: script.messenger_yvon
+    data:
+      message: L'impression 3D est terminée.
+  - service: persistent_notification.create
+    data:
+      message: L'impression 3D est terminée.
+      title: Imprimante 3D
+  - service: automation.turn_off
+    entity_id: automation.fin_impression_3d 
+
+#Erreur tondeuse 
+- alias: Erreur tondeuse
+  trigger:
+    platform: state
+    entity_id: vacuum.sileno
+    from: 'ok_cutting'
+    to: 'error'
+    
+  action:
+  - service: mqtt_rvoice.play
+    data_template:
+      entity_id: group.tous_les_player
+      message: "Votre attention s'il vous plait.La tondeuse robot est en erreur. Je répète, la tondeuse robot est en erreur.Merci."
+      volume: "{{ states('input_number.slider_annonce_volume') }}"
+  - service: script.messenger_yvon
+    data:
+      message: La tondeuse robot est en erreur.
+  - service: script.messenger_delphine
+    data:
+      message: La tondeuse robot est en erreur.      
+  - service: persistent_notification.create
+    data:
+      message: La tondeuse robot est en erreur.
+      title: Tondeuse robot
+ 
+#Depart tondeuse 
+- alias: Depart tondeuse
+  trigger:
+    platform: state
+    entity_id: vacuum.sileno
+    to: 'ok_cutting'
+    
+  action:
+  - service: script.messenger_yvon
+    data:
+      message: La tondeuse robot est en marche.
+  - service: persistent_notification.create
+    data:
+      message: La tondeuse robot est en marche.
+      title: Tondeuse robot 
+
+#Charge tondeuse 
+- alias: Charge tondeuse
+  trigger:
+    platform: state
+    entity_id: vacuum.sileno
+    to: 'ok_charging'
+    
+  action:
+  - service: script.messenger_yvon
+    data:
+      message: La tondeuse robot est en charge.
+  - service: persistent_notification.create
+    data:
+      message: La tondeuse robot est en charge.
+      title: Tondeuse robot   
+      
+
+#IFTT Webhook 
+- id: automation_Ifttt_id
+  alias: Ifttt automation
+  trigger:
+  - event_data:
+      action: call_service
+    event_type: ifttt_webhook_received
+    platform: event
+  condition: []
+  action:
+  - data_template:
+      entity_id: '{{ trigger.event.data.entity_id }}'
+    service_template: '{{ trigger.event.data.service }}'
+
+      

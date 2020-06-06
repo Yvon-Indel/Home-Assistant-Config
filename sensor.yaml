@@ -1,0 +1,173 @@
+ #Wemos Picine
+ - platform: mqtt
+   device_class: temperature
+   name: "Température de l'eau'"
+   state_topic: "/Local Piscine/Temp_Piscine/Temp_Piscine"
+   unit_of_measurement: '°C'
+   value_template: "{{ (value | float) + 2}}"
+   icon: mdi:pool
+
+ - platform: mqtt
+   device_class: temperature
+   name: "Température du local piscine"
+   state_topic: "/Local Piscine/Temp_Local_Piscine/Temp_Local_Piscine"
+   unit_of_measurement: '°C'
+   icon: mdi:pool
+   
+ - platform: mqtt
+   name: "Niveau de chlore"
+   state_topic: "/Local Piscine/Capteur_Chlore/Niveau_Chlore"
+   icon: mdi:pool
+#Rcrvoice
+ - platform: mqtt
+   name: "ttsmp3"
+   state_topic: "/tts/lienmp3"
+#Shelly
+ - platform: mqtt
+   name: "inter couloir court"
+   state_topic: "shellies/shelly1-111AA9/input/0"
+
+ - platform: mqtt
+   name: "inter couloir long"
+   state_topic: "shellies/shelly1-111AA9/longpush/0"
+#Bt sensor
+ - platform: mqtt
+   name: "Temperature Chambre Parentale"
+   state_topic: "mijasensor_gen2/chambre"
+   unit_of_measurement: '°C'
+   value_template: "{{ value_json.temperature }}"
+ - platform: mqtt
+   name: "Humidity Chambre Parentale"
+   state_topic: "mijasensor_gen2/chambre"
+   unit_of_measurement: '%'
+   value_template: "{{ value_json.humidity }}"
+ - platform: mqtt
+   name: "Battery Chambre Parentale"
+   state_topic: "mijasensor_gen2/chambre"
+   unit_of_measurement: 'v'
+   value_template: "{{ value_json.battery }}"
+
+ - platform: mqtt
+   name: "Temperature Véranda"
+   state_topic: "mijasensor_gen2/veranda"
+   unit_of_measurement: '°C'
+   value_template: "{{ value_json.temperature }}"
+ - platform: mqtt
+   name: "Humidity Véranda"
+   state_topic: "mijasensor_gen2/veranda"
+   unit_of_measurement: '%'
+   value_template: "{{ value_json.humidity }}"
+ - platform: mqtt
+   name: "Battery Véranda"
+   state_topic: "mijasensor_gen2/veranda"
+   unit_of_measurement: 'v'
+   value_template: "{{ value_json.battery }}"   
+
+ - platform: mqtt
+   name: "Temperature Cuisine"
+   state_topic: "mijasensor_gen2/cuisine"
+   unit_of_measurement: '°C'
+   value_template: "{{ value_json.temperature }}"
+ - platform: mqtt
+   name: "Humidity Cuisine"
+   state_topic: "mijasensor_gen2/cuisine"
+   unit_of_measurement: '%'
+   value_template: "{{ value_json.humidity }}"
+ - platform: mqtt
+   name: "Battery Cuisine"
+   state_topic: "mijasensor_gen2/cuisine"
+   unit_of_measurement: 'v'
+   value_template: "{{ value_json.battery }}"   
+
+# Machine à laver
+ - platform: template
+   sensors:
+  # Status de la machine à laver n°1
+     machine_a_laver1_prise:
+       entity_id:
+         - switch.machine_a_laver_319
+       value_template: '{{ states.switch.machine_a_laver_319.state }}'
+       friendly_name: 'Alimentation de la machine à laver n°1'    
+     machine_a_laver1_status:
+       entity_id:
+         - input_select.machine_a_laver1_status
+       value_template: '{{ states.input_select.machine_a_laver1_status.state }}'
+       friendly_name: 'Status de la machine à laver n°1'  
+     machine_a_laver1_power:
+       entity_id:
+         - switch.machine_a_laver_319
+       unit_of_measurement: 'w'
+       value_template: "{{ state_attr('switch.machine_a_laver_319', 'current_power_w') }}"
+       friendly_name: 'Consommation de la machine à laver n°1'
+ # Status de la machine à laver n°2
+     machine_a_laver2_prise:
+       entity_id:
+         - switch.lave_linge_2_831
+       value_template: '{{ states.switch.lave_linge_2_831.state }}'
+       friendly_name: 'Alimentation de la machine à laver n°2'    
+     machine_a_laver2_status:
+       entity_id:
+         - input_select.machine_a_laver2_status
+       value_template: '{{ states.input_select.machine_a_laver2_status.state }}'
+       friendly_name: 'Status de la machine à laver n°2'  
+     machine_a_laver2_power:
+       entity_id:
+         - switch.lave_linge_2_831
+       unit_of_measurement: 'w'
+       value_template: "{{ state_attr('switch.lave_linge_2_831', 'current_power_w') }}"
+       friendly_name: 'Consommation de la machine à laver n°2'
+       
+# Lave vaisselle
+ - platform: template
+   sensors:
+  # Status du lave-vaisselle
+     lave_vaisselle_prise:
+       entity_id:
+         - switch.lave_vaisselle_832
+       value_template: '{{ states.switch.lave_vaisselle_832.state }}'
+       friendly_name: 'Alimentation du lave vaisselle'    
+     lave_vaisselle_status:
+       entity_id:
+         - input_select.lave_vaisselle_status
+       value_template: '{{ states.input_select.lave_vaisselle_status.state }}'
+       friendly_name: 'Status du lave vaisselle'  
+     lave_vaisselle_power:
+       entity_id:
+         - switch.lave_vaisselle_832
+       unit_of_measurement: 'w'
+       value_template: "{{ state_attr('switch.lave_vaisselle_832', 'current_power_w') }}"
+       friendly_name: 'Consommation du lave vaisselle'    
+
+   
+ # Piscine
+ - platform: template
+   sensors:
+     filtration_de_la_piscine:
+       entity_id:
+         - switch.pompe_de_la_piscine
+       value_template: '{% if is_state("switch.pompe_de_la_piscine", "on")%}En marche{%else%}Arrêté{%endif%}'
+       friendly_name: 'Etat réel de la filtration'    
+ 
+ # Uptime HA
+ - platform: uptime
+   name: Time Online
+   unit_of_measurement: minutes
+   
+ - platform: template
+   sensors:
+  # Status du restart HA
+     harestart:
+       entity_id:
+         - sensor.time_online
+       value_template: "{{ states.sensor.time_online.state | float < 1}}" 
+       friendly_name: 'harestart'     
+       
+# Tondeuse
+ - platform: template
+   sensors:
+  # Status du lave-vaisselle
+     activite_de_la_tondeuse:
+       entity_id:
+         - vacuum.sileno
+       value_template: "{{ state_attr('vacuum.sileno', 'status') }}"
+       friendly_name: 'Activité de la tondeuse'           

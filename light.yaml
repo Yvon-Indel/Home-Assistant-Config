@@ -1,0 +1,35 @@
+ - platform: switch
+   name: lampe de chevet yvon
+   entity_id: switch.lampe_de_chevet_yvon
+   
+ - platform: switch
+   name: lampe de chevet delphine
+   entity_id: switch.lampe_de_chevet_delphine   
+
+ - platform: switch
+   name: hallogene
+   entity_id: switch.rfxcom_inter_dressing  
+     
+ - platform: switch
+   name: lampe de sel
+   entity_id: switch.lampe_de_sel_303  
+ 
+ - platform: switch
+   name: lumiere du sejour
+   entity_id: switch.maitre_sejour_512  
+   
+ - platform: switch
+   name: lampe sdb rdc
+   entity_id: switch.maitre_tableau_l5_735   
+
+ - platform: switch
+   name: eclairage de la piscine
+   entity_id: switch.eclairage_de_la_piscine    
+ 
+ - platform: switch
+   name: eclairage tour de la piscine
+   entity_id: switch.guirlande_de_noel     
+
+ - platform: switch
+   name: eclairage des oiseaux
+   entity_id: switch.rfxcom_prise_oiseaux     

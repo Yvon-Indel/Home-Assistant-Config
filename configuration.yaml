@@ -1,0 +1,131 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+lovelace:
+  mode: yaml
+  resources:
+  - url: /local/community/lovelace-multiple-entity-row/multiple-entity-row.js?v=3.0.0
+    type: module
+  - url: /local/lovelace-text-input-row.js?v=0.0.8
+    type: js
+  - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
+    type: module
+homeassistant:
+  customize: !include customize.yaml
+  # latitude: !secret malat
+  # longitude: !secret malong
+  # elevation: 108
+  # name: Maison
+  # unit_system: metric
+  # time_zone: Europe/Paris
+  packages: !include_dir_named packages
+
+logger:
+  default: info
+  logs:
+    device_tracker: debug
+    
+
+recorder:
+  purge_keep_days: 14
+  db_url: !secret databaseurl
+  include:
+    domains:
+      - sensor
+      - switch
+      - shell_command
+      - binary_sensor
+      - input_text
+      - input_boolean
+      - input_select
+      - vacuum
+      - light
+      - script
+      - device_tracker
+      - person
+  exclude:
+    entities:
+      - sensor.time
+    event_types:
+      - service_removed
+      - service_executed
+      - platform_discovered
+      - homeassistant_start
+      - feedreader
+      - service_registered
+      - call_service
+      - component_loaded
+
+    
+python_script:
+
+# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+http:
+  ssl_certificate: /ssl/fullchain.pem
+  ssl_key: /ssl/privkey.pem
+ 
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+sensor: !include sensor.yaml
+binary_sensor: !include binary_sensor.yaml
+switch: !include switches.yaml
+light: !include light.yaml
+notify: !include notify.yaml
+input_select: !include input_select.yaml 
+input_boolean: !include input_boolean.yaml
+input_number: !include input_number.yaml
+input_text: !include input_text.yaml
+google_assistant: !include google_assistant.yaml
+climate: !include climate.yaml 
+
+# Tracker
+device_tracker:
+  - platform: google_maps
+    username: maisonmonnaie@gmail.com
+
+#Passerelle Xiaomi
+xiaomi_aqara:
+  discovery_retry: 5
+  gateways:
+    - key: !secret xiaomigate1
+    
+#Yeelight
+yeelight:
+  devices:  
+    192.168.1.228:
+      name: Wc bas
+
+
+#Sonoff et ewelink objets
+# sonoff:
+  # username: !secret sonofflogin
+  # password: !secret sonoffpasswd
+  # scan_interval: 60
+  # grace_period: 600 
+  # api_region: 'eu' 
+  # entity_prefix: True 
+  # debug: False
+
+#TTS Google
+tts:
+  - platform: google_translate
+    language: 'fr'
+  
+#tts responsivevoice
+mqtt_rvoice:
+
+
+#Tuya
+tuya:
+  username: !secret tuya_username
+  password: !secret tuya_password
+  country_code: 33
+  platform: smart_life
+
+#Tondeuse
+gardena:
+  username: !secret gardena_user
+  password: !secret gardena_password
+

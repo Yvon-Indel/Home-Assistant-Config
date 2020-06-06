@@ -1,0 +1,11 @@
+#Indicateur de charge batterie
+ - platform: trend
+   sensors:
+     recharge_tondeuse:
+       entity_id: vacuum.sileno
+       attribute: battery_level
+       device_class: battery_charging
+       friendly_name: "Recharge tondeuse"
+       sample_duration: 3000
+       min_gradient: 0.01
+       max_samples: 5

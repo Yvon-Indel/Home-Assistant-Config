@@ -1,0 +1,155 @@
+title: Sécurité
+badges: []
+cards:
+  - entities:
+      - type: section
+        label: Portes
+      - entity: binary_sensor.door_window_sensor_158d0002a63e5d
+        secondary_info: last-changed
+      - entity: binary_sensor.door_window_sensor_158d0002e29b7b   
+        secondary_info: last-changed          
+      - type: section
+        label: Fenêtres
+      - entity: binary_sensor.door_window_sensor_158d0002e29da4
+        secondary_info: last-changed  
+      - entity: binary_sensor.door_window_sensor_158d0002e8c64d
+      - entity: cover.volet_central_101
+      - entity: cover.volets_lateraux_103
+      - type: section
+        label: Détecteurs incendie
+      - entity: binary_sensor.smoke_sensor_158d0002cb539d
+      - entity: binary_sensor.smoke_sensor_158d0002e95c67               
+    show_header_toggle: false
+    title: REZ DE CHAUSSEE
+    type: entities
+    
+  - entities:
+      - type: section
+        label: Détecteurs incendie
+      - entity: binary_sensor.smoke_sensor_158d0002e95bf5
+      - entity: binary_sensor.smoke_sensor_158d0002e95d50      
+      - entity: binary_sensor.smoke_sensor_158d0002e95e33                
+    show_header_toggle: false
+    title: ETAGE
+    type: entities
+    
+  - entities:
+      - type: section
+        label: Capteurs divers
+      - entity: binary_sensor.vibration_158d0002b77fb6
+      - entity: binary_sensor.rfxcom_detecteur_chevet_yvon
+        name: Capteur chevet yvon
+        secondary_info: last-changed        
+      - type: section
+        label: Onduleur
+      - entity: sensor.nut_ups_status
+        secondary_info: last-changed
+        name: Statut
+      - entity: sensor.nut_ups_battery_charge
+        name: Charge            
+      - entity: sensor.nut_ups_battery_runtime
+        name: Durée
+      - entity:  switch.sonnette_interieure
+        name: sonnette intèrieure
+    show_header_toggle: false
+    title: DIVERS
+    type: entities
+  - entities:
+      #- entity: switch.pompe_de_la_piscine
+      #  name: moteur pompe
+      - entity: sensor.temperature_de_l_eau
+      - entity: sensor.filtration_de_la_piscine
+        name: Filtration
+      - entity: sensor.temperature_reel_piscine
+        type: custom:multiple-entity-row
+        secondary_info:
+          attribute: qualite
+          name: "Pour se baigner, l'eau est :"  
+        name: Température
+      - entity: sensor.creneau_de_filtration_actif 
+        name: Créneau            
+      - type: call-service
+        icon: 'mdi:timeline-clock-outline'
+        name: ' '
+        action_name: Nouveau bidon de chlore
+        service: automation.trigger
+        service_data:
+          entity_id: automation.maj_bidon_change
+      - entity: sensor.bidon_de_chlore
+        name: Chlore
+        show_state: false
+        icon: mdi:car-coolant-level
+        type: custom:multiple-entity-row
+        entities:
+          - attribute: bidon_etat
+            name: Niveau
+          - attribute: bidon_last_change
+            name: Date de changement 
+          - attribute: bidon_last_alert
+            name: Date d'alerte
+      - type: section
+        label: Gateways
+      - entity: binary_sensor.rfxcom_gateway
+        name: Passerelle Rfxcom2Mqtt    
+ 
+    show_header_toggle: false
+    title: PISCINE
+    type: entities
+    
+  - entities:
+      - entity: vacuum.sileno
+        name: Tondeuse
+        icon: mdi:robot-mower
+        show_state: true
+        type: custom:multiple-entity-row
+        entities:
+          - attribute: friendly_name
+            name: Modèle 
+          - attribute: battery_level
+            name: Batterie
+      - entity: sensor.activite_de_la_tondeuse
+      - entity: binary_sensor.recharge_tondeuse
+
+
+    show_header_toggle: false
+    title: JARDIN
+    type: entities
+    
+  - type: entities
+    entities:
+      - type: section
+        label: Responsive Voice
+      - entity: input_text.announcement_text
+        name: "Saisir l'annonce à diffuser:"
+        type: 'custom:text-input-row'
+      
+      - entity: input_number.slider_annonce_volume
+      
+      - type: call-service
+        icon: 'mdi:timeline-clock-outline'
+        name: ' '
+        action_name: Diffuser l'heure
+        service: script.1585843523999
+        
+      - type: call-service
+        icon: 'mdi:voice'
+        name: ' '
+        action_name: Diffuser
+        service: script.1585671895470
+        
+      - type: section
+        label: Discord
+      - type: call-service
+        icon: 'mdi:voice'
+        name: ' '
+        action_name: Envoyer Message
+        service: notify.discord
+        service_data:
+          message: "A message from Home Assistant"
+          target: ["550688646970212362"]
+     
+path: securite_view
+
+  
+
+
